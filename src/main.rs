@@ -25,19 +25,26 @@ async fn main() {
 }
 
 async fn root() -> impl IntoResponse {
-    "Usage example: /image-name.jpg?url=https://example.com/image.png&width=100"
+    "Usage example: /image-name.jpg?url=https://example.com/image.png&w=100\n"
 }
 
 #[derive(Deserialize)]
 struct ImgResizeParameters {
     url: String,
-    width: u32,
+    w: Option<u32>,
+    h: Option<u32>,
 }
 async fn img_resize(
     Path(filename): Path<String>,
     Query(query): Query<ImgResizeParameters>,
 ) -> impl IntoResponse {
     println!("filename: {}", filename);
+
+    let mut h = HeaderMap::new();
+    h.insert(
+        http::header::CONTENT_TYPE,
+        HeaderValue::from_static("text/plain"),
+    );
 
     let image_output_format: image::ImageOutputFormat;
     let header_value: &'static str;
@@ -52,12 +59,6 @@ async fn img_resize(
         header_value = "image/gif";
         image_output_format = image::ImageOutputFormat::Gif;
     } else {
-        let mut h = HeaderMap::new();
-        h.insert(
-            http::header::CONTENT_TYPE,
-            HeaderValue::from_static("text/plain"),
-        );
-
         return (StatusCode::BAD_REQUEST, h, "Invalid file extension".into());
     }
 
@@ -70,16 +71,35 @@ async fn img_resize(
     let image = image::load_from_memory(&img_bytes).unwrap();
     let aspect_ratio: f32 = image.height() as f32 / image.width() as f32;
 
+    let width: u32;
+    let height: u32;
+    match (query.w, query.h) {
+        (Some(w), Some(h)) => {
+            width = w;
+            height = h;
+        }
+        (Some(w), None) => {
+            width = w;
+            height = (w as f32 * aspect_ratio) as u32;
+        }
+        (None, Some(h)) => {
+            width = (h as f32 / aspect_ratio) as u32;
+            height = h;
+        }
+        (None, None) => {
+            width = image.width();
+            height = image.height();
+        }
+    }
+
     println!(
         "Resizing image to {}x{} (aspect ratio: {})",
-        query.width,
-        (query.width as f32 * aspect_ratio) as u32,
-        aspect_ratio
+        width, height, aspect_ratio
     );
 
-    let resized = image.resize(
-        query.width,
-        (query.width as f32 * aspect_ratio) as u32,
+    let resized = image.resize_exact(
+        width,
+        height,
         // https://stackoverflow.com/a/6171860
         image::imageops::FilterType::Lanczos3,
     );
