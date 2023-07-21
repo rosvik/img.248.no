@@ -69,28 +69,8 @@ async fn img_resize(
         .await
         .unwrap();
     let image = image::load_from_memory(&img_bytes).unwrap();
-    let aspect_ratio: f32 = image.height() as f32 / image.width() as f32;
 
-    let width: u32;
-    let height: u32;
-    match (query.w, query.h) {
-        (Some(w), Some(h)) => {
-            width = w;
-            height = h;
-        }
-        (Some(w), None) => {
-            width = w;
-            height = (w as f32 * aspect_ratio) as u32;
-        }
-        (None, Some(h)) => {
-            width = (h as f32 / aspect_ratio) as u32;
-            height = h;
-        }
-        (None, None) => {
-            width = image.width();
-            height = image.height();
-        }
-    }
+    let (width, height) = get_size(query.w, query.h, &image);
 
     println!(
         "Resizing image to {}x{} (aspect ratio: {})",
@@ -115,4 +95,42 @@ async fn img_resize(
     );
 
     (StatusCode::OK, headers, Bytes::from(buffer.into_inner()))
+}
+
+fn get_size(w: Option<u32>, h: Option<u32>, image: &image::DynamicImage) -> (u32, u32) {
+    let width: u32;
+    let height: u32;
+    let aspect_ratio: f32 = image.height() as f32 / image.width() as f32;
+    match (w, h) {
+        (None, None) => {
+            width = image.width();
+            height = image.height();
+        }
+        (Some(w), Some(h)) => {
+            if w == 0 && h == 0 {
+                return get_size(None, None, image);
+            } else if w == 0 {
+                return get_size(None, Some(h), image);
+            } else if h == 0 {
+                return get_size(Some(w), None, image);
+            }
+            width = w;
+            height = h;
+        }
+        (Some(w), None) => {
+            if w > image.width() {
+                return get_size(None, None, image);
+            }
+            width = w;
+            height = (w as f32 * aspect_ratio) as u32;
+        }
+        (None, Some(h)) => {
+            if h > image.height() {
+                return get_size(None, None, image);
+            }
+            width = (h as f32 / aspect_ratio) as u32;
+            height = h;
+        }
+    }
+    (width, height)
 }
