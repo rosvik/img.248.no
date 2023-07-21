@@ -38,8 +38,6 @@ async fn img_resize(
     Path(filename): Path<String>,
     Query(query): Query<ImgResizeParameters>,
 ) -> impl IntoResponse {
-    println!("filename: {}", filename);
-
     let mut h = HeaderMap::new();
     h.insert(
         http::header::CONTENT_TYPE,
@@ -62,7 +60,7 @@ async fn img_resize(
         return (StatusCode::BAD_REQUEST, h, "Invalid file extension".into());
     }
 
-    let img_bytes = reqwest::get(query.url)
+    let img_bytes = reqwest::get(query.url.clone())
         .await
         .unwrap()
         .bytes()
@@ -73,8 +71,12 @@ async fn img_resize(
     let (width, height) = get_size(query.w, query.h, &image);
 
     println!(
-        "Resizing image to {}x{} (aspect ratio: {})",
-        width, height, aspect_ratio
+        "Resizing image '{}' to {}x{} (source {}x{})",
+        query.url,
+        width,
+        height,
+        image.width(),
+        image.height()
     );
 
     let resized = image.resize_exact(
