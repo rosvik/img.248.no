@@ -2,13 +2,13 @@ use axum::{
     body::Bytes,
     extract::{Path, Query},
     http::{HeaderMap, StatusCode},
-    response::IntoResponse,
+    response::{Html, IntoResponse},
     routing::get,
     Router,
 };
 use http::{header::CONTENT_TYPE, HeaderValue};
-use serde::Deserialize;
-use std::{io::Cursor, net::SocketAddr};
+use serde::{de, Deserialize, Deserializer};
+use std::{fmt, io::Cursor, net::SocketAddr, str::FromStr};
 
 const BAD_REQUEST: StatusCode = StatusCode::BAD_REQUEST;
 const OK: StatusCode = StatusCode::OK;
@@ -19,7 +19,7 @@ const PLAINTEXT: HeaderValue = HeaderValue::from_static("text/plain");
 #[tokio::main]
 async fn main() {
     let app = Router::new()
-        .route("/", get(root))
+        .route("/", get(index))
         .route("/:filename", get(img_resize));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 2338));
@@ -30,14 +30,16 @@ async fn main() {
         .unwrap();
 }
 
-async fn root() -> impl IntoResponse {
-    "Usage example: /image-name.jpg?url=https://example.com/image.png&w=100\n"
+async fn index() -> Html<&'static str> {
+    Html(include_str!("../templates/index.html"))
 }
 
 #[derive(Deserialize)]
 struct ImgResizeParameters {
     url: String,
+    #[serde(default, deserialize_with = "empty_string_as_none")]
     w: Option<u32>,
+    #[serde(default, deserialize_with = "empty_string_as_none")]
     h: Option<u32>,
 }
 async fn img_resize(
@@ -165,4 +167,17 @@ fn get_size(w: Option<u32>, h: Option<u32>, image: &image::DynamicImage) -> (u32
         }
     }
     (width, height)
+}
+
+fn empty_string_as_none<'de, D, T>(de: D) -> Result<Option<T>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: FromStr,
+    T::Err: fmt::Display,
+{
+    let opt = Option::<String>::deserialize(de)?;
+    match opt.as_deref() {
+        None | Some("") => Ok(None),
+        Some(s) => FromStr::from_str(s).map_err(de::Error::custom).map(Some),
+    }
 }

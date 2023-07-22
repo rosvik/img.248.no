@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
 
-nodemon -e rs -x "clear && cargo run"
-
+nodemon -e rs,html -x "clear && cargo run"
