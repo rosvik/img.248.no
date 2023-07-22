@@ -74,6 +74,14 @@ async fn img_resize(
             )
         }
     };
+    let status_code = image_response.status();
+    if !status_code.is_success() {
+        return (
+            status_code,
+            headers,
+            format!("Status code from source: {}", image_response.status()).into(),
+        );
+    }
     let image_bytes = match image_response.bytes().await {
         Ok(b) => b,
         Err(e) => {
