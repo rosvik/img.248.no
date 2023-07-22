@@ -1,6 +1,6 @@
-# Image Loader
+# img.248.no
 
-A simple Rust-based API that allows you to resize images from different formats (JPEG, PNG, GIF) hosted at a given URL. The API uses the Axum framework for handling HTTP requests and responses and the Serde library for deserializing query parameters.
+A simple Rust-based tool and API that allows you to resize images from different formats (JPEG, PNG, GIF) hosted at a given URL. The API uses the Axum framework for handling HTTP requests and responses and the Serde library for deserializing query parameters.
 
 Can be set up as a image optimizer for your front end, for example as a [Next.js image loader](https://nextjs.org/docs/pages/api-reference/next-config-js/images).
 
