@@ -49,20 +49,7 @@ async fn img_resize(
     let mut headers = HeaderMap::new();
     headers.insert(CONTENT_TYPE, PLAINTEXT);
 
-    let image_output_format: image::ImageOutputFormat;
-    let header_value: &'static str;
-    if filename.ends_with(".jpg") {
-        header_value = "image/jpeg";
-        image_output_format = image::ImageOutputFormat::Jpeg(100);
-    } else if filename.ends_with(".png") {
-        header_value = "image/png";
-        image_output_format = image::ImageOutputFormat::Png;
-    } else if filename.ends_with(".gif") {
-        header_value = "image/gif";
-        image_output_format = image::ImageOutputFormat::Gif;
-    } else {
-        return (BAD_REQUEST, headers, "Invalid file extension".into());
-    }
+    let (image_output_format, header_value) = image_format(filename);
 
     let image_response = match reqwest::get(query.url.clone()).await {
         Ok(r) => r,
@@ -177,22 +164,15 @@ fn get_size(w: Option<u32>, h: Option<u32>, image: &image::DynamicImage) -> (u32
     (width, height)
 }
 
-fn image_format(filename: String) -> Option<(Image::ImageOutputFormat, &'static str)> {
-    let image_output_format: image::ImageOutputFormat;
-    let header_value: &'static str;
+fn image_format(filename: String) -> Result<(Image::ImageOutputFormat, &'static str), &'static str> {
     if filename.ends_with(".jpg") {
-        header_value = "image/jpeg";
-        image_output_format = image::ImageOutputFormat::Jpeg(100);
+        return Ok((image::ImageOutputFormat::Jpeg(100), "image/jpeg"));
     } else if filename.ends_with(".png") {
-        header_value = "image/png";
-        image_output_format = image::ImageOutputFormat::Png;
+        return Ok((image::ImageOutputFormat::Png, "image/png"));
     } else if filename.ends_with(".gif") {
-        header_value = "image/gif";
-        image_output_format = image::ImageOutputFormat::Gif;
-    } else {
-        return Err("Invalid format");
+        return Ok((image::ImageOutputFormat::Gif, "image/gif"));
     }
-    (image_output_format, header_value)
+    return Err("Invalid format");
 }
 
 fn empty_string_as_none<'de, D, T>(de: D) -> Result<Option<T>, D::Error>
