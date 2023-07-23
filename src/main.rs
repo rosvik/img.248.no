@@ -177,6 +177,24 @@ fn get_size(w: Option<u32>, h: Option<u32>, image: &image::DynamicImage) -> (u32
     (width, height)
 }
 
+fn image_format(filename: String) -> Option<(Image::ImageOutputFormat, &'static str)> {
+    let image_output_format: image::ImageOutputFormat;
+    let header_value: &'static str;
+    if filename.ends_with(".jpg") {
+        header_value = "image/jpeg";
+        image_output_format = image::ImageOutputFormat::Jpeg(100);
+    } else if filename.ends_with(".png") {
+        header_value = "image/png";
+        image_output_format = image::ImageOutputFormat::Png;
+    } else if filename.ends_with(".gif") {
+        header_value = "image/gif";
+        image_output_format = image::ImageOutputFormat::Gif;
+    } else {
+        return Err("Invalid format");
+    }
+    (image_output_format, header_value)
+}
+
 fn empty_string_as_none<'de, D, T>(de: D) -> Result<Option<T>, D::Error>
 where
     D: Deserializer<'de>,
