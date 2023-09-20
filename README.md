@@ -31,3 +31,4 @@ Example:
 ```bash
 curl "http://127.0.0.1:2338/image-name.jpg?url=https://example.com/image.png&w=100"
 ```
+<div align="right"><img src="public/favicon.svg" width="32" alt="248"></div>
