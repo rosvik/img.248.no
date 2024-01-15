@@ -2,7 +2,7 @@
 
 A simple Rust-based tool and API that allows you to resize images from different formats (JPEG, PNG, GIF) hosted at a given URL. The API uses the Axum framework for handling HTTP requests and responses and the Serde library for deserializing query parameters.
 
-You're welcome to use the hosted version at img.248.no for testing, but you should host your own instance if you care about reliability, or expect a significant amount of traffic.
+You're welcome to use the hosted version at img.248.no for testing, but I can't guarantee that it will be reliable or able to handle a significant amount of traffic.
 
 ## How to Use
 
