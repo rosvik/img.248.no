@@ -74,41 +74,13 @@ async fn img_resize(
         );
     }
 
-    let image_response = match reqwest::get(query.url.clone()).await {
-        Ok(r) => r,
+    let image = match libimg::fetch_image(query.url.clone()).await {
+        Ok(i) => i,
         Err(e) => {
             return (
                 BAD_REQUEST,
                 http_headers("text/plain"),
                 format!("Failed to fetch image: {}", e).into(),
-            )
-        }
-    };
-    let status_code = image_response.status();
-    if !status_code.is_success() {
-        return (
-            status_code,
-            http_headers("text/plain"),
-            format!("Status code from source: {}", image_response.status()).into(),
-        );
-    }
-    let image_bytes = match image_response.bytes().await {
-        Ok(b) => b,
-        Err(e) => {
-            return (
-                BAD_REQUEST,
-                http_headers("text/plain"),
-                format!("Failed to parse image: {}", e).into(),
-            )
-        }
-    };
-    let image = match image::load_from_memory(&image_bytes) {
-        Ok(i) => i,
-        Err(e) => {
-            return (
-                INTERNAL_SERVER_ERROR,
-                http_headers("text/plain"),
-                format!("Failed to load image from memory: {}", e).into(),
             )
         }
     };

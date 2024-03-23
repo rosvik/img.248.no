@@ -1,18 +1,11 @@
-workspace = { members = ["libimg"] }
-
 [package]
-name = "img-248-no"
+name = "libimg"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-libimg = { path = "./libimg" }
-
-axum = "0.6.19"
-base64 = "0.22.0"
-http = "0.2.9"
 image = "0.24.6"
-serde = { version = "1", features = ["derive"] }
+reqwest = "0.11.18"
 tokio = { version = "1", features = ["full"] }
