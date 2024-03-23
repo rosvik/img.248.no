@@ -24,6 +24,7 @@ Parameters:
 - `url`: Required. The URL of the image to resize.
 - `w`: The desired width of the resized image. Default is the original width, or auto if height is provided.
 - `h`: The desired height of the resized image. Default is the original height, or auto if width is provided.
+- `base64`: If set, the image will be returned as a base64-encoded string. (Accepts `true`/`false` or `on`/`off` as values, or simply `&base64`)
 
 Example:
 ```bash
