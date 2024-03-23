@@ -21,11 +21,9 @@ The API will start running on `http://127.0.0.1:2338`.
 Resizes the image specified by the `URL` to the provided `WIDTH` and `HEIGHT` parameters. `FILENAME` should have the file extension `.jpg`, `.png`, or `.gif`.
 
 Parameters:
-- `url`: The URL of the image to resize.
-- `w`: Optional. The desired width of the resized image.
-- `h`: Optional. The desired height of the resized image.
-
-_Providing only one of `w` or `h` will give you an image with preserved aspect ratio. When providing neither, the image will not be resized._
+- `url`: Required. The URL of the image to resize.
+- `w`: The desired width of the resized image. Default is the original width, or auto if height is provided.
+- `h`: The desired height of the resized image. Default is the original height, or auto if width is provided.
 
 Example:
 ```bash
