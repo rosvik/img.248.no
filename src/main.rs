@@ -45,6 +45,8 @@ struct ImgResizeParameters {
     w: Option<u32>,
     #[serde(default, deserialize_with = "empty_string_as_none")]
     h: Option<u32>,
+    #[serde(default, deserialize_with = "empty_string_as_none")]
+    quality: Option<u8>,
     #[serde(default, deserialize_with = "string_as_bool")]
     base64: bool,
 }
@@ -56,7 +58,8 @@ async fn img_resize(
     let header_value: &'static str;
     if filename.ends_with(".jpg") {
         header_value = "image/jpeg";
-        image_output_format = image::ImageOutputFormat::Jpeg(100);
+        let quality = query.quality.unwrap_or(100).clamp(0, 100);
+        image_output_format = image::ImageOutputFormat::Jpeg(quality);
     } else if filename.ends_with(".png") {
         header_value = "image/png";
         image_output_format = image::ImageOutputFormat::Png;
