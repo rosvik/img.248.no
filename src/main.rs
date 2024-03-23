@@ -45,7 +45,8 @@ struct ImgResizeParameters {
     w: Option<u32>,
     #[serde(default, deserialize_with = "empty_string_as_none")]
     h: Option<u32>,
-    base64: Option<bool>,
+    #[serde(default, deserialize_with = "string_as_bool")]
+    base64: bool,
 }
 async fn img_resize(
     Path(filename): Path<String>,
@@ -137,7 +138,7 @@ async fn img_resize(
         }
     }
 
-    if query.base64.unwrap_or(false) {
+    if query.base64 {
         let base64_data = BASE_64.encode(buffer.get_ref());
         let prefix = format!("data:{header_value};base64,");
         return (
@@ -208,5 +209,16 @@ where
     match opt.as_deref() {
         None | Some("") => Ok(None),
         Some(s) => FromStr::from_str(s).map_err(de::Error::custom).map(Some),
+    }
+}
+fn string_as_bool<'de, D>(de: D) -> Result<bool, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let opt = String::deserialize(de).unwrap_or("off".to_string());
+    match opt.as_str() {
+        "on" | "true" | "" => Ok(true),
+        "off" | "false" => Ok(false),
+        _ => Ok(false),
     }
 }
