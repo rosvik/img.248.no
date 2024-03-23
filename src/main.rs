@@ -47,6 +47,8 @@ struct ImgResizeParameters {
     h: Option<u32>,
     #[serde(default, deserialize_with = "empty_string_as_none")]
     quality: Option<u8>,
+    #[serde(default, deserialize_with = "empty_string_as_none")]
+    sampling: Option<String>,
     #[serde(default, deserialize_with = "string_as_bool")]
     base64: bool,
 }
@@ -96,7 +98,7 @@ async fn img_resize(
         image.height()
     );
 
-    let resized = libimg::resize_image(image, width, height);
+    let resized = libimg::resize_image(image, width, height, get_samling_filter(&query.sampling));
     let buffer = match libimg::to_buffer(resized, image_output_format) {
         Ok(b) => b,
         Err(e) => {
@@ -167,6 +169,26 @@ fn get_size(w: Option<u32>, h: Option<u32>, image: &libimg::Image) -> (u32, u32)
         }
     }
     (width, height)
+}
+
+fn get_samling_filter(query: &Option<String>) -> Option<libimg::SamplingFilter> {
+    match query {
+        Some(f) => match f.to_lowercase().as_str() {
+            "nearest" => Some(libimg::sampling_filter::Nearest),
+            "linear" => Some(libimg::sampling_filter::Linear),
+            "cubic" => Some(libimg::sampling_filter::Cubic),
+            "gaussian" => Some(libimg::sampling_filter::Gaussian),
+            "lanczos" => Some(libimg::sampling_filter::Lanczos),
+
+            // Lanczos gives the best results, at least for downsampling.
+            // https://stackoverflow.com/a/6171860
+            // TODO: Are there better options for upsampling?
+            "best" => Some(libimg::sampling_filter::Lanczos),
+
+            _ => None,
+        },
+        None => None,
+    }
 }
 
 fn empty_string_as_none<'de, D, T>(de: D) -> Result<Option<T>, D::Error>

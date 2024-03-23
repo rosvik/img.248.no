@@ -26,6 +26,7 @@ Resizes the image specified by the `URL` to the provided `WIDTH` and `HEIGHT` pa
 - `w`: The desired width of the resized image. Default is the original width, or auto if height is provided.
 - `h`: The desired height of the resized image. Default is the original height, or auto if width is provided.
 - `quality`: The quality of the resized image from 0 to 100. Only applies to JPEG images. Default is 100.
+- `sampling`: The sampling filter to use when resizing the image. Accepts one of `nearest`, `linear`, `cubic`, `gaussian`, `lanczos`, or `best`. Default is `linear`. For examples and info on performance, see [image::imageops::FilterType](https://docs.rs/image/latest/image/imageops/enum.FilterType.html).
 - `base64`: If set, the image will be returned as a base64-encoded string. (Accepts `true`/`false` or `on`/`off` as values, or simply `&base64`)
 
 ### Example
