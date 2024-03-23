@@ -26,10 +26,11 @@ Parameters:
 - `h`: The desired height of the resized image. Default is the original height, or auto if width is provided.
 - `base64`: If set, the image will be returned as a base64-encoded string. (Accepts `true`/`false` or `on`/`off` as values, or simply `&base64`)
 
-Example:
-```bash
-curl "http://127.0.0.1:2338/image-name.jpg?url=https://example.com/image.png&w=100"
-```
+## Example:
+
+The url `https://img.248.no/example.png?url=https://picsum.photos/seed/h/1000/700&w=800` gives this 800px wide PNG:
+
+![](https://img.248.no/example.png?url=https://picsum.photos/seed/h/1000/700&w=800)
 
 ### Next.js image loader
 
