@@ -30,11 +30,11 @@ Resizes the image specified by the `URL` to the provided `WIDTH` and `HEIGHT` pa
 
 ### Example
 
-The url https://img.248.no/example.png?url=https://picsum.photos/seed/h/1000/700&w=800 gives this 800px wide PNG
+The url https://img.248.no/example.jpg?url=https://picsum.photos/seed/h/1000/700&w=800&quality=90 gives this 800px wide JPEG image with 90% quality:
 
 <div align="center">
-  <a href="https://img.248.no/example.png?url=https://picsum.photos/seed/h/1000/700&w=800">
-    <img src="https://img.248.no/example.png?url=https://picsum.photos/seed/h/1000/700&w=800">
+  <a href="https://img.248.no/example.jpg?url=https://picsum.photos/seed/h/1000/700&w=800&quality=90">
+    <img src="https://img.248.no/example.jpg?url=https://picsum.photos/seed/h/1000/700&w=800&quality=90">
   </a>
 </div>
 
