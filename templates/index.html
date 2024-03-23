@@ -34,11 +34,11 @@
         outline: none;
         width: calc(100% - 2em - 2px);
       }
-      input:focus {
-        border-color: white;
-      }
       input:invalid {
         border-color: #a01f02;
+      }
+      input:focus {
+        border-color: white;
       }
       input[type="number"] {
         appearance: textfield;
@@ -67,7 +67,7 @@
         </tr>
         <tr>
           <td><label for="url">Url</label></td>
-          <td><input type="url" name="url" placeholder="url" /></td>
+          <td><input type="url" name="url" placeholder="url" required autofocus /></td>
         </tr>
         <tr>
           <td><label for="w">Width</label></td>
