@@ -20,17 +20,22 @@ The API will start running on `http://127.0.0.1:2338`.
 
 Resizes the image specified by the `URL` to the provided `WIDTH` and `HEIGHT` parameters. `FILENAME` should have the file extension `.jpg`, `.png`, or `.gif`.
 
-Parameters:
+### Parameters
+
 - `url`: Required. The URL of the image to resize.
 - `w`: The desired width of the resized image. Default is the original width, or auto if height is provided.
 - `h`: The desired height of the resized image. Default is the original height, or auto if width is provided.
 - `base64`: If set, the image will be returned as a base64-encoded string. (Accepts `true`/`false` or `on`/`off` as values, or simply `&base64`)
 
-## Example:
+### Example
 
-The url `https://img.248.no/example.png?url=https://picsum.photos/seed/h/1000/700&w=800` gives this 800px wide PNG:
+The url https://img.248.no/example.png?url=https://picsum.photos/seed/h/1000/700&w=800 gives this 800px wide PNG
 
-![](https://img.248.no/example.png?url=https://picsum.photos/seed/h/1000/700&w=800)
+<div align="center">
+  <a href="https://img.248.no/example.png?url=https://picsum.photos/seed/h/1000/700&w=800">
+    <img src="https://img.248.no/example.png?url=https://picsum.photos/seed/h/1000/700&w=800">
+  </a>
+</div>
 
 ### Next.js image loader
 
@@ -51,7 +56,7 @@ Then, create `image-loader.js` with the following contents:
 
 ```js
 export default function imageLoader({ src, width }) {
-  return `https://img.248.no/image.jpg?&w=${width}&url=${src}`;
+  return `https://img.248.no/image.jpg?&url=${src}&w=${width}`;
 }
 ```
 
