@@ -6,15 +6,13 @@ use axum::{
     routing::get,
     Router,
 };
-use http::{header::CONTENT_TYPE, HeaderValue};
+use http::HeaderValue;
 use serde::{de, Deserialize, Deserializer};
 use std::{fmt, io::Cursor, net::SocketAddr, str::FromStr};
 
 const BAD_REQUEST: StatusCode = StatusCode::BAD_REQUEST;
 const OK: StatusCode = StatusCode::OK;
 const INTERNAL_SERVER_ERROR: StatusCode = StatusCode::INTERNAL_SERVER_ERROR;
-
-const PLAINTEXT: HeaderValue = HeaderValue::from_static("text/plain");
 
 #[tokio::main]
 async fn main() {
@@ -46,9 +44,6 @@ async fn img_resize(
     Path(filename): Path<String>,
     Query(query): Query<ImgResizeParameters>,
 ) -> impl IntoResponse {
-    let mut headers = HeaderMap::new();
-    headers.insert(CONTENT_TYPE, PLAINTEXT);
-
     let image_output_format: image::ImageOutputFormat;
     let header_value: &'static str;
     if filename.ends_with(".jpg") {
@@ -61,7 +56,11 @@ async fn img_resize(
         header_value = "image/gif";
         image_output_format = image::ImageOutputFormat::Gif;
     } else {
-        return (BAD_REQUEST, headers, "Invalid file extension".into());
+        return (
+            BAD_REQUEST,
+            http_headers("text/plain"),
+            "Invalid file extension".into(),
+        );
     }
 
     let image_response = match reqwest::get(query.url.clone()).await {
@@ -69,7 +68,7 @@ async fn img_resize(
         Err(e) => {
             return (
                 BAD_REQUEST,
-                headers,
+                http_headers("text/plain"),
                 format!("Failed to fetch image: {}", e).into(),
             )
         }
@@ -78,7 +77,7 @@ async fn img_resize(
     if !status_code.is_success() {
         return (
             status_code,
-            headers,
+            http_headers("text/plain"),
             format!("Status code from source: {}", image_response.status()).into(),
         );
     }
@@ -87,7 +86,7 @@ async fn img_resize(
         Err(e) => {
             return (
                 BAD_REQUEST,
-                headers,
+                http_headers("text/plain"),
                 format!("Failed to parse image: {}", e).into(),
             )
         }
@@ -97,7 +96,7 @@ async fn img_resize(
         Err(e) => {
             return (
                 INTERNAL_SERVER_ERROR,
-                headers,
+                http_headers("text/plain"),
                 format!("Failed to load image from memory: {}", e).into(),
             )
         }
@@ -125,18 +124,23 @@ async fn img_resize(
         Err(e) => {
             return (
                 INTERNAL_SERVER_ERROR,
-                headers,
+                http_headers("text/plain"),
                 format!("Failed to write image to buffer: {}", e).into(),
             )
         }
     }
 
+    (
+        OK,
+        http_headers(header_value),
+        Bytes::from(buffer.into_inner()),
+    )
+}
+
+fn http_headers(value: &'static str) -> HeaderMap {
     let mut image_headers = HeaderMap::new();
-    image_headers.insert(
-        http::header::CONTENT_TYPE,
-        HeaderValue::from_static(header_value),
-    );
-    (OK, image_headers, Bytes::from(buffer.into_inner()))
+    image_headers.insert(http::header::CONTENT_TYPE, HeaderValue::from_static(value));
+    image_headers
 }
 
 fn get_size(w: Option<u32>, h: Option<u32>, image: &image::DynamicImage) -> (u32, u32) {
