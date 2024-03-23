@@ -32,3 +32,23 @@ pub async fn fetch_image(url: String) -> Result<image::DynamicImage, Box<dyn std
 
     Ok(image)
 }
+
+pub fn resize_image(image: image::DynamicImage, width: u32, height: u32) -> image::DynamicImage {
+    image.resize_exact(
+        width,
+        height,
+        image::imageops::FilterType::Lanczos3, // https://stackoverflow.com/a/6171860
+    )
+}
+
+pub fn to_buffer(
+    image: image::DynamicImage,
+    format: image::ImageOutputFormat,
+) -> Result<Cursor<Vec<u8>>, Box<dyn std::error::Error>> {
+    let mut buffer = Cursor::new(Vec::new());
+    match image.write_to(&mut buffer, format) {
+        Ok(_) => (),
+        Err(e) => return Err(Box::new(e)),
+    }
+    Ok(buffer)
+}

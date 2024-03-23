@@ -96,22 +96,17 @@ async fn img_resize(
         image.height()
     );
 
-    let resized = image.resize_exact(
-        width,
-        height,
-        image::imageops::FilterType::Lanczos3, // https://stackoverflow.com/a/6171860
-    );
-    let mut buffer = Cursor::new(Vec::new());
-    match resized.write_to(&mut buffer, image_output_format) {
-        Ok(_) => (),
+    let resized = libimg::resize_image(image, width, height);
+    let buffer = match libimg::to_buffer(resized, image_output_format) {
+        Ok(b) => b,
         Err(e) => {
             return (
                 INTERNAL_SERVER_ERROR,
                 http_headers("text/plain"),
-                format!("Failed to write image to buffer: {}", e).into(),
+                format!("Failed to resize image: {}", e).into(),
             )
         }
-    }
+    };
 
     if query.base64 {
         let base64_data = BASE_64.encode(buffer.get_ref());
