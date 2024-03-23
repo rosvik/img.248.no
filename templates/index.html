@@ -44,6 +44,7 @@
         appearance: textfield;
       }
       input[type="submit"] {
+        margin-top: 2em;
         width: 100%;
         text-transform: uppercase;
         border-color: rgba(242, 151, 24, 0.5);
@@ -56,6 +57,19 @@
       }
       input[type="submit"]:hover {
         cursor: pointer;
+      }
+      input[type="checkbox"] {
+        width: 1.5em;
+        height: 1.5em;
+        margin: 1em;
+        accent-color: white;
+        filter: brightness(95%) contrast(.7) invert(1);
+      }
+      input[type="checkbox"]:checked {
+        filter: none;
+      }
+      input[type="checkbox"]:focus {
+        outline: auto;
       }
     </style>
   </head>
@@ -76,6 +90,10 @@
         <tr>
           <td><label for="h">Height</label></td>
           <td><input type="number" name="h" placeholder="h" /></td>
+        </tr>
+        <tr>
+          <td><label for="base64">Base 64</label></td>
+          <td><input type="checkbox" name="base64" /></td>
         </tr>
         <tr>
           <td colspan="2">
