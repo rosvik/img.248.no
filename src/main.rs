@@ -9,7 +9,7 @@ use axum::{
 use base64::Engine;
 use http::HeaderValue;
 use serde::{de, Deserialize, Deserializer};
-use std::{fmt, io::Cursor, net::SocketAddr, str::FromStr};
+use std::{fmt, net::SocketAddr, str::FromStr};
 
 const BAD_REQUEST: StatusCode = StatusCode::BAD_REQUEST;
 const OK: StatusCode = StatusCode::OK;
@@ -54,18 +54,18 @@ async fn img_resize(
     Path(filename): Path<String>,
     Query(query): Query<ImgResizeParameters>,
 ) -> impl IntoResponse {
-    let image_output_format: image::ImageOutputFormat;
+    let image_output_format: libimg::Format;
     let header_value: &'static str;
     if filename.ends_with(".jpg") {
         header_value = "image/jpeg";
         let quality = query.quality.unwrap_or(100).clamp(0, 100);
-        image_output_format = image::ImageOutputFormat::Jpeg(quality);
+        image_output_format = libimg::format::Jpeg(quality);
     } else if filename.ends_with(".png") {
         header_value = "image/png";
-        image_output_format = image::ImageOutputFormat::Png;
+        image_output_format = libimg::format::Png;
     } else if filename.ends_with(".gif") {
         header_value = "image/gif";
-        image_output_format = image::ImageOutputFormat::Gif;
+        image_output_format = libimg::format::Gif;
     } else {
         return (
             BAD_REQUEST,
@@ -131,7 +131,7 @@ fn http_headers(value: &'static str) -> HeaderMap {
     image_headers
 }
 
-fn get_size(w: Option<u32>, h: Option<u32>, image: &image::DynamicImage) -> (u32, u32) {
+fn get_size(w: Option<u32>, h: Option<u32>, image: &libimg::Image) -> (u32, u32) {
     let width: u32;
     let height: u32;
     let aspect_ratio: f32 = image.height() as f32 / image.width() as f32;

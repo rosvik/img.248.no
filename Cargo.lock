@@ -579,7 +579,6 @@ dependencies = [
  "axum",
  "base64 0.22.0",
  "http",
- "image",
  "libimg",
  "serde",
  "tokio",
