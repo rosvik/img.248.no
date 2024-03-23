@@ -67,3 +67,14 @@ pub fn to_buffer(
     }
     Ok(buffer)
 }
+
+use base64::Engine as _;
+const B64_ENGINE: base64::engine::GeneralPurpose = base64::engine::GeneralPurpose::new(
+    &base64::alphabet::STANDARD,
+    base64::engine::general_purpose::NO_PAD,
+);
+pub fn to_base64(buffer: &Cursor<Vec<u8>>, content_type: &str) -> String {
+    let base64_data = B64_ENGINE.encode(buffer.get_ref());
+    let prefix = format!("data:{};base64,", content_type);
+    format!("{}{}", prefix, base64_data)
+}

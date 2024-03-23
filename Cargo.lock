@@ -577,7 +577,6 @@ name = "img-248-no"
 version = "0.1.0"
 dependencies = [
  "axum",
- "base64 0.22.0",
  "http",
  "libimg",
  "serde",
@@ -646,6 +645,7 @@ checksum = "b4668fb0ea861c1df094127ac5f1da3409a82116a4ba74fca2e58ef927159bb3"
 name = "libimg"
 version = "0.1.0"
 dependencies = [
+ "base64 0.22.0",
  "image",
  "reqwest",
  "tokio",

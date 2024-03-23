@@ -6,7 +6,6 @@ use axum::{
     routing::get,
     Router,
 };
-use base64::Engine;
 use http::HeaderValue;
 use serde::{de, Deserialize, Deserializer};
 use std::{fmt, net::SocketAddr, str::FromStr};
@@ -14,11 +13,6 @@ use std::{fmt, net::SocketAddr, str::FromStr};
 const BAD_REQUEST: StatusCode = StatusCode::BAD_REQUEST;
 const OK: StatusCode = StatusCode::OK;
 const INTERNAL_SERVER_ERROR: StatusCode = StatusCode::INTERNAL_SERVER_ERROR;
-
-const BASE_64: base64::engine::GeneralPurpose = base64::engine::GeneralPurpose::new(
-    &base64::alphabet::STANDARD,
-    base64::engine::general_purpose::NO_PAD,
-);
 
 #[tokio::main]
 async fn main() {
@@ -111,13 +105,8 @@ async fn get_image(
     };
 
     if query.base64 {
-        let base64_data = BASE_64.encode(buffer.get_ref());
-        let prefix = format!("data:{};base64,", content_type);
-        return (
-            OK,
-            http_headers("text/plain"),
-            format!("{}{}", prefix, base64_data).into(),
-        );
+        let b64_data = libimg::to_base64(&buffer, content_type);
+        return (OK, http_headers("text/plain"), b64_data.into());
     }
 
     (
