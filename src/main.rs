@@ -6,6 +6,7 @@ use axum::{
     routing::get,
     Router,
 };
+use base64::Engine;
 use http::HeaderValue;
 use serde::{de, Deserialize, Deserializer};
 use std::{fmt, io::Cursor, net::SocketAddr, str::FromStr};
@@ -13,6 +14,11 @@ use std::{fmt, io::Cursor, net::SocketAddr, str::FromStr};
 const BAD_REQUEST: StatusCode = StatusCode::BAD_REQUEST;
 const OK: StatusCode = StatusCode::OK;
 const INTERNAL_SERVER_ERROR: StatusCode = StatusCode::INTERNAL_SERVER_ERROR;
+
+const BASE_64: base64::engine::GeneralPurpose = base64::engine::GeneralPurpose::new(
+    &base64::alphabet::STANDARD,
+    base64::engine::general_purpose::NO_PAD,
+);
 
 #[tokio::main]
 async fn main() {
@@ -39,6 +45,7 @@ struct ImgResizeParameters {
     w: Option<u32>,
     #[serde(default, deserialize_with = "empty_string_as_none")]
     h: Option<u32>,
+    base64: Option<bool>,
 }
 async fn img_resize(
     Path(filename): Path<String>,
@@ -128,6 +135,16 @@ async fn img_resize(
                 format!("Failed to write image to buffer: {}", e).into(),
             )
         }
+    }
+
+    if query.base64.unwrap_or(false) {
+        let base64_data = BASE_64.encode(buffer.get_ref());
+        let prefix = format!("data:{header_value};base64,");
+        return (
+            OK,
+            http_headers("text/plain"),
+            format!("{}{}", prefix, base64_data).into(),
+        );
     }
 
     (
