@@ -24,7 +24,7 @@ const BASE_64: base64::engine::GeneralPurpose = base64::engine::GeneralPurpose::
 async fn main() {
     let app = Router::new()
         .route("/", get(index))
-        .route("/:filename", get(img_resize));
+        .route("/:filename", get(get_image));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 2338));
     println!("Listening on http://{}", addr);
@@ -52,21 +52,21 @@ struct ImgResizeParameters {
     #[serde(default, deserialize_with = "string_as_bool")]
     base64: bool,
 }
-async fn img_resize(
+async fn get_image(
     Path(filename): Path<String>,
     Query(query): Query<ImgResizeParameters>,
 ) -> impl IntoResponse {
     let image_output_format: libimg::Format;
-    let header_value: &'static str;
+    let content_type: &'static str;
     if filename.ends_with(".jpg") {
-        header_value = "image/jpeg";
+        content_type = "image/jpeg";
         let quality = query.quality.unwrap_or(100).clamp(0, 100);
         image_output_format = libimg::format::Jpeg(quality);
     } else if filename.ends_with(".png") {
-        header_value = "image/png";
+        content_type = "image/png";
         image_output_format = libimg::format::Png;
     } else if filename.ends_with(".gif") {
-        header_value = "image/gif";
+        content_type = "image/gif";
         image_output_format = libimg::format::Gif;
     } else {
         return (
@@ -112,7 +112,7 @@ async fn img_resize(
 
     if query.base64 {
         let base64_data = BASE_64.encode(buffer.get_ref());
-        let prefix = format!("data:{header_value};base64,");
+        let prefix = format!("data:{};base64,", content_type);
         return (
             OK,
             http_headers("text/plain"),
@@ -122,7 +122,7 @@ async fn img_resize(
 
     (
         OK,
-        http_headers(header_value),
+        http_headers(content_type),
         Bytes::from(buffer.into_inner()),
     )
 }
