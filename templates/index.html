@@ -27,12 +27,15 @@
       tr > * {
         padding: 0.2em;
       }
-      input {
+      input, select {
         background-color: #1f2931;
         border: 1px solid gray;
         padding: 1em;
         outline: none;
         width: calc(100% - 2em - 2px);
+      }
+      select {
+        width: 100%;
       }
       input:invalid {
         border-color: #a01f02;
@@ -90,6 +93,19 @@
         <tr>
           <td><label for="h">Height</label></td>
           <td><input type="number" name="h" placeholder="h" /></td>
+        </tr>
+        <tr>
+          <td><label for="sampling">Sampling</label></td>
+          <td>
+            <select name="sampling">
+              <option></option>
+              <option value="linear">Linear / Triangle (default)</option>
+              <option value="lanczos">Lanczos3 (best)</option>
+              <option value="nearest">Nearest</option>
+              <option value="cubic">Cubic / Catmull Rom</option>
+              <option value="Gaussian">Gaussian</option>
+            </select>
+          </td>
         </tr>
         <tr>
           <td><label for="base64">Base 64</label></td>
