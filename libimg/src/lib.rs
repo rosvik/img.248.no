@@ -24,8 +24,7 @@ pub enum ResizeMode {
     Fit,
     Crop,
     Stretch,
-    // TODO: Cover should treat the provided dimensions as the minimum size
-    //Cover,
+    Cover,
 }
 
 pub async fn fetch_image(url: String) -> Result<image::DynamicImage, Box<dyn std::error::Error>> {
@@ -69,6 +68,16 @@ pub fn resize_image(
         ResizeMode::Fit => image.resize(width, height, filter_type),
         ResizeMode::Crop => image.resize_to_fill(width, height, filter_type),
         ResizeMode::Stretch => image.resize_exact(width, height, filter_type),
+        ResizeMode::Cover => {
+            let (image_width, image_height) = (image.width(), image.height());
+            let (new_width, new_height) =
+                if width as f32 / height as f32 > image_width as f32 / image_height as f32 {
+                    (width, (width * image_height) / image_width)
+                } else {
+                    ((height * image_width) / image_height, height)
+                };
+            image.resize(new_width, new_height, filter_type)
+        }
     }
 }
 
