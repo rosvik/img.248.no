@@ -40,7 +40,7 @@
       input:invalid {
         border-color: #a01f02;
       }
-      input:focus {
+      input:focus, select:focus {
         border-color: white;
       }
       input[type="number"] {
@@ -98,8 +98,7 @@
           <td><label for="sampling">Sampling</label></td>
           <td>
             <select name="sampling">
-              <option></option>
-              <option value="linear">Linear / Triangle (default)</option>
+              <option value="linear">Linear / Triangle</option>
               <option value="lanczos">Lanczos3 (best)</option>
               <option value="nearest">Nearest</option>
               <option value="cubic">Cubic / Catmull Rom</option>
@@ -111,9 +110,8 @@
           <td><label for="mode">Mode</label></td>
           <td>
             <select name="mode">
-              <option></option>
-              <option value="fit">Fit</option>
               <option value="crop">Crop</option>
+              <option value="fit">Fit</option>
               <option value="stretch">Stretch</option>
               <option value="cover">Cover</option>
             </select>
