@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::io::{Cursor, Error, ErrorKind};
 
 pub use image::imageops::FilterType as SamplingFilter;
@@ -15,6 +16,16 @@ pub mod sampling_filter {
     pub use image::imageops::Lanczos3 as Lanczos;
     pub use image::imageops::Nearest;
     pub use image::imageops::Triangle as Linear;
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ResizeMode {
+    Fit,
+    Crop,
+    Stretch,
+    // TODO: Cover should treat the provided dimensions as the minimum size
+    //Cover,
 }
 
 pub async fn fetch_image(url: String) -> Result<image::DynamicImage, Box<dyn std::error::Error>> {
@@ -46,6 +57,7 @@ pub fn resize_image(
     width: u32,
     height: u32,
     filter: Option<image::imageops::FilterType>,
+    mode: ResizeMode,
 ) -> image::DynamicImage {
     // Lanczos gives the best results (https://stackoverflow.com/a/6171860), at
     // least for downsampling, while being quite slow. Triangle gives ok enough
@@ -53,7 +65,11 @@ pub fn resize_image(
     // https://docs.rs/image/latest/image/imageops/enum.FilterType.html
     let filter_type = filter.unwrap_or(image::imageops::FilterType::Triangle);
 
-    image.resize_exact(width, height, filter_type)
+    match mode {
+        ResizeMode::Fit => image.resize(width, height, filter_type),
+        ResizeMode::Crop => image.resize_to_fill(width, height, filter_type),
+        ResizeMode::Stretch => image.resize_exact(width, height, filter_type),
+    }
 }
 
 pub fn to_buffer(

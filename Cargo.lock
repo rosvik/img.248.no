@@ -648,6 +648,7 @@ dependencies = [
  "base64 0.22.0",
  "image",
  "reqwest",
+ "serde",
  "tokio",
 ]
 

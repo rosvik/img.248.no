@@ -5,6 +5,7 @@ use axum::{
     http::{HeaderMap, HeaderValue, StatusCode},
     response::IntoResponse,
 };
+use libimg::ResizeMode;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -14,6 +15,7 @@ pub struct ImgResizeParameters {
     w: Option<u32>,
     #[serde(default, deserialize_with = "empty_string_as_none")]
     h: Option<u32>,
+    mode: Option<ResizeMode>,
     #[serde(default, deserialize_with = "empty_string_as_none")]
     quality: Option<u8>,
     #[serde(default, deserialize_with = "empty_string_as_none")]
@@ -57,6 +59,8 @@ pub async fn generate_image(
     };
 
     let (width, height) = get_size(query.w, query.h, &image);
+    let resize_mode = query.mode.unwrap_or(ResizeMode::Crop);
+    let sampling_filter = get_samling_filter(&query.sampling);
 
     println!(
         "Resizing image '{}' to {}x{} (source {}x{})",
@@ -67,7 +71,7 @@ pub async fn generate_image(
         image.height()
     );
 
-    let resized = libimg::resize_image(image, width, height, get_samling_filter(&query.sampling));
+    let resized = libimg::resize_image(image, width, height, sampling_filter, resize_mode);
     let buffer = match libimg::to_buffer(resized, image_output_format) {
         Ok(b) => b,
         Err(e) => {
