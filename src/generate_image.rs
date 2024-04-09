@@ -102,14 +102,9 @@ fn http_headers(value: &'static str) -> HeaderMap {
 }
 
 fn get_size(w: Option<u32>, h: Option<u32>, image: &libimg::Image) -> (u32, u32) {
-    let width: u32;
-    let height: u32;
     let aspect_ratio: f32 = image.height() as f32 / image.width() as f32;
     match (w, h) {
-        (None, None) => {
-            width = image.width();
-            height = image.height();
-        }
+        (None, None) => (image.width(), image.height()),
         (Some(w), Some(h)) => {
             if w == 0 && h == 0 {
                 return get_size(None, None, image);
@@ -118,25 +113,23 @@ fn get_size(w: Option<u32>, h: Option<u32>, image: &libimg::Image) -> (u32, u32)
             } else if h == 0 {
                 return get_size(Some(w), None, image);
             }
-            width = w;
-            height = h;
+            (w, h)
         }
         (Some(w), None) => {
             if w > image.width() {
                 return get_size(None, None, image);
             }
-            width = w;
-            height = (w as f32 * aspect_ratio) as u32;
+            let height = (w as f32 * aspect_ratio) as u32;
+            (w, height)
         }
         (None, Some(h)) => {
             if h > image.height() {
                 return get_size(None, None, image);
             }
-            width = (h as f32 / aspect_ratio) as u32;
-            height = h;
+            let width = (h as f32 / aspect_ratio) as u32;
+            (width, h)
         }
     }
-    (width, height)
 }
 
 fn get_samling_filter(query: &Option<String>) -> Option<libimg::SamplingFilter> {
