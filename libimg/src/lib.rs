@@ -27,7 +27,7 @@ pub enum ResizeMode {
     Cover,
 }
 
-pub async fn fetch_image(url: String) -> Result<image::DynamicImage, Box<dyn std::error::Error>> {
+pub async fn fetch_image(url: &String) -> Result<image::DynamicImage, Box<dyn std::error::Error>> {
     let image_response = match reqwest::get(url).await {
         Ok(r) => r,
         Err(e) => return Err(Box::new(e)),

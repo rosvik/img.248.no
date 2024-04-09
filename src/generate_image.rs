@@ -47,7 +47,7 @@ pub async fn generate_image(
         );
     }
 
-    let image = match libimg::fetch_image(query.url.clone()).await {
+    let image = match libimg::fetch_image(&query.url).await {
         Ok(i) => i,
         Err(e) => {
             return (
