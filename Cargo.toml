@@ -10,7 +10,7 @@ edition = "2021"
 [dependencies]
 libimg = { path = "./libimg" }
 
-axum = "0.6.19"
-http = "0.2.9"
+axum = "0.8.1"
+http = "1.2.0"
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
