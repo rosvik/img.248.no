@@ -11,7 +11,7 @@ async fn main() {
         .route("/", get(index))
         .route("/{filename}", get(generate_image));
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 2338));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 2338));
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     println!("Listening on http://{}", addr);
 
