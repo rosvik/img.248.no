@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::io::{Cursor, Error, ErrorKind};
+use std::io::{Cursor, Error};
 
 pub use image::imageops::FilterType as SamplingFilter;
 pub use image::DynamicImage as Image;
@@ -34,10 +34,9 @@ pub async fn fetch_image(url: &String) -> Result<image::DynamicImage, Box<dyn st
     };
     let status_code = image_response.status();
     if !status_code.is_success() {
-        return Err(Box::new(Error::new(
-            ErrorKind::Other,
-            format!("Status code from source: {}", status_code),
-        )));
+        return Err(Box::new(Error::other(format!(
+            "Status code from source: {status_code}"
+        ))));
     }
     let image_bytes = match image_response.bytes().await {
         Ok(b) => b,
@@ -100,6 +99,6 @@ const B64_ENGINE: base64::engine::GeneralPurpose = base64::engine::GeneralPurpos
 );
 pub fn to_base64(buffer: &Cursor<Vec<u8>>, content_type: &str) -> String {
     let base64_data = B64_ENGINE.encode(buffer.get_ref());
-    let prefix = format!("data:{};base64,", content_type);
-    format!("{}{}", prefix, base64_data)
+    let prefix = format!("data:{content_type};base64,");
+    format!("{prefix}{base64_data}")
 }

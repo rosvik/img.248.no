@@ -53,7 +53,7 @@ pub async fn generate_image(
             return (
                 StatusCode::BAD_REQUEST,
                 http_headers("text/plain"),
-                format!("Failed to fetch image: {}", e).into(),
+                format!("Failed to fetch image: {e}").into(),
             )
         }
     };
@@ -78,7 +78,7 @@ pub async fn generate_image(
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 http_headers("text/plain"),
-                format!("Failed to resize image: {}", e).into(),
+                format!("Failed to resize image: {e}").into(),
             )
         }
     };
