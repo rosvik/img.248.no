@@ -40,6 +40,7 @@ pub async fn generate_image(
         content_type = "image/gif";
         image_output_format = libimg::format::Gif;
     } else {
+        println!("Invalid file extension: {filename}");
         return (
             StatusCode::BAD_REQUEST,
             http_headers("text/plain"),
@@ -50,11 +51,12 @@ pub async fn generate_image(
     let image = match libimg::fetch_image(&query.url).await {
         Ok(i) => i,
         Err(e) => {
+            println!("Failed to fetch image: {e}");
             return (
                 StatusCode::BAD_REQUEST,
                 http_headers("text/plain"),
                 format!("Failed to fetch image: {e}").into(),
-            )
+            );
         }
     };
 
@@ -75,11 +77,12 @@ pub async fn generate_image(
     let buffer = match libimg::to_buffer(resized, image_output_format) {
         Ok(b) => b,
         Err(e) => {
+            println!("Failed to resize image: {e}");
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 http_headers("text/plain"),
                 format!("Failed to resize image: {e}").into(),
-            )
+            );
         }
     };
 
